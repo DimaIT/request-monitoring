@@ -1,9 +1,11 @@
 import fetch from 'node-fetch';
 import { play } from "./audio.js";
 
+const INTERVAL = 40_000; // ms
+
 let lastStatus = null;
 
-async function monitor() {
+async function check() {
     const resp = await fetch("https://www.ticketswap.com/rammstein-ostend-4-augustus-2022", {
         "credentials": "omit",
         "headers": {
@@ -42,8 +44,14 @@ async function monitor() {
     }
 }
 
-monitor();
+(function monitor() {
+    check();
+    const next = randomize(INTERVAL);
+    console.log('wait', next)
+    setTimeout(monitor, next);
+})()
 
-setInterval(async () => {
-    await monitor();
-}, 30000);
+function randomize(base) {
+    const variable = (Math.random() - 0.5) * base * 0.4;
+    return base + variable
+}
