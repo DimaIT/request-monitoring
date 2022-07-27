@@ -47,7 +47,6 @@ async function check() {
 (function monitor() {
     check();
     const next = randomize(INTERVAL);
-    console.log('wait', next)
     setTimeout(monitor, next);
 })()
 
