@@ -12,7 +12,7 @@ export function play() {
     const freq = 440.0; // Concert A, default tone
 
 // seconds worth of audio data to generate before emitting "end"
-    const duration = 1.5;
+    const duration = 1;
 
     console.log('generating a %dhz sine wave for %d seconds', freq, duration);
 

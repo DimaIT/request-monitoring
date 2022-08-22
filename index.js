@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 import { play } from "./audio.js";
 
-const INTERVAL = 40_000; // ms
+const INTERVAL = 70_000; // ms
 
 let lastStatus = null;
 
-async function check() {
+async function checkTicketSwap() {
     const resp = await fetch("https://www.ticketswap.com/rammstein-ostend-4-augustus-2022", {
         "credentials": "omit",
         "headers": {
@@ -44,13 +44,32 @@ async function check() {
     }
 }
 
-(function monitor() {
-    check();
+async function checkInd() {
+    const resp = await fetch("https://oap.ind.nl/oap/api/desks/AM/slots/?productKey=DOC&persons=1");
+
+    let rawData = await resp.text();
+    if (rawData.indexOf('{') !== 0) {
+        rawData = rawData.substring(rawData.indexOf('{'));
+    }
+    const slots = JSON.parse(rawData).data;
+    const dates = slots.map(item => new Date(`${item.date} ${item.startTime}`));
+    const match = dates.filter(date => date < new Date('2022-09-10') && date > new Date('2022-08-27'))
+
+    if (match.length) {
+        console.log('\n\nSlots available!!!!', match);
+        play();
+    } else {
+        console.log('No match, total:', dates.length, dates);
+    }
+}
+
+(async function monitor() {
+    await checkInd();
     const next = randomize(INTERVAL);
     setTimeout(monitor, next);
 })()
 
 function randomize(base) {
-    const variable = (Math.random() - 0.5) * base * 0.4;
+    const variable = (Math.random() - 0.5) * base * 0.4; // +-20%
     return base + variable
 }
